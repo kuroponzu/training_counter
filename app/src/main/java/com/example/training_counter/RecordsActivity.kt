@@ -15,11 +15,13 @@ class RecordsActivity : AppCompatActivity() {
     private lateinit var totalRecordsTextView: TextView
     private lateinit var backButton: Button
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var currentMode: ExerciseMode
     private val gson = Gson()
     
     companion object {
         private const val PREFS_NAME = "training_counter_prefs"
-        private const val KEY_PERIOD_RECORDS = "period_records"
+        private const val KEY_PERIOD_RECORDS_PUSHUP = "period_records_pushup"
+        private const val KEY_PERIOD_RECORDS_SQUAT = "period_records_squat"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,16 +30,30 @@ class RecordsActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         
+        // インテントからモードを取得
+        val modeName = intent.getStringExtra("currentMode") ?: ExerciseMode.PUSHUP.name
+        currentMode = try {
+            ExerciseMode.valueOf(modeName)
+        } catch (e: IllegalArgumentException) {
+            ExerciseMode.PUSHUP
+        }
+        
         recordsRecyclerView = findViewById(R.id.recordsRecyclerView)
         totalRecordsTextView = findViewById(R.id.totalRecordsTextView)
         backButton = findViewById(R.id.backButton)
 
         setupRecyclerView()
         updateTotalRecords()
+        updateTitle()
 
         backButton.setOnClickListener {
             finish()
         }
+    }
+    
+    private fun updateTitle() {
+        val titleTextView = findViewById<TextView>(R.id.titleTextView)
+        titleTextView.text = "${currentMode.displayName} 記録一覧"
     }
 
     private fun setupRecyclerView() {
@@ -48,7 +64,12 @@ class RecordsActivity : AppCompatActivity() {
     }
 
     private fun loadPeriodRecords(): List<PeriodRecord> {
-        val recordsJson = sharedPreferences.getString(KEY_PERIOD_RECORDS, "[]")
+        val recordsKey = when (currentMode) {
+            ExerciseMode.PUSHUP -> KEY_PERIOD_RECORDS_PUSHUP
+            ExerciseMode.SQUAT -> KEY_PERIOD_RECORDS_SQUAT
+        }
+        
+        val recordsJson = sharedPreferences.getString(recordsKey, "[]")
         val type = object : TypeToken<List<PeriodRecord>>() {}.type
         return gson.fromJson(recordsJson, type) ?: emptyList()
     }
