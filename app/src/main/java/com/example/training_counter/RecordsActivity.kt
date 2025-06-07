@@ -47,18 +47,23 @@ class RecordsActivity : AppCompatActivity() {
         recordsRecyclerView.adapter = adapter
     }
 
-    private fun loadPeriodRecords(): List<Int> {
+    private fun loadPeriodRecords(): List<PeriodRecord> {
         val recordsJson = sharedPreferences.getString(KEY_PERIOD_RECORDS, "[]")
-        val type = object : TypeToken<List<Int>>() {}.type
+        val type = object : TypeToken<List<PeriodRecord>>() {}.type
         return gson.fromJson(recordsJson, type) ?: emptyList()
     }
 
     private fun updateTotalRecords() {
         val records = loadPeriodRecords()
         val totalPeriods = records.size
-        val totalCount = records.sum()
+        val totalCount = records.sumOf { it.count }
         val averageCount = if (totalPeriods > 0) totalCount.toDouble() / totalPeriods else 0.0
+        val totalDuration = records.sumOf { it.durationMillis }
+        val averageDuration = if (totalPeriods > 0) totalDuration / totalPeriods else 0L
 
-        totalRecordsTextView.text = "総ピリオド数: ${totalPeriods}\n総回数: ${totalCount}\n平均: %.1f回".format(averageCount)
+        val avgMinutes = averageDuration / 60000
+        val avgSeconds = (averageDuration % 60000) / 1000
+
+        totalRecordsTextView.text = "総ピリオド数: ${totalPeriods}\n総回数: ${totalCount}\n平均: %.1f回\n平均時間: ${avgMinutes}分${avgSeconds}秒".format(averageCount)
     }
 }
