@@ -85,7 +85,18 @@
         android:text="記録: なし"
         android:textSize="16sp"
         android:padding="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/recordsButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/recordsButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="記録一覧"
+        android:textSize="16sp"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

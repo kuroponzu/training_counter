@@ -1,5 +1,6 @@
 package com.example.training_counter
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var stopButton: Button
     private lateinit var periodTextView: TextView
     private lateinit var historyTextView: TextView
+    private lateinit var recordsButton: Button
     
     private lateinit var sharedPreferences: SharedPreferences
     private val gson = Gson()
@@ -44,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         stopButton = findViewById(R.id.stopButton)
         periodTextView = findViewById(R.id.periodTextView)
         historyTextView = findViewById(R.id.historyTextView)
+        recordsButton = findViewById(R.id.recordsButton)
 
         loadData()
         updateDisplays()
@@ -62,6 +65,11 @@ class MainActivity : AppCompatActivity() {
 
         stopButton.setOnClickListener {
             stopPeriod()
+        }
+
+        recordsButton.setOnClickListener {
+            val intent = Intent(this, RecordsActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -112,10 +120,9 @@ class MainActivity : AppCompatActivity() {
         if (periodRecords.isEmpty()) {
             historyTextView.text = "記録: なし"
         } else {
-            val recordsText = periodRecords.mapIndexed { index, count ->
-                "P${index + 1}: ${count}回"
-            }.joinToString(", ")
-            historyTextView.text = "記録: $recordsText"
+            val latestPeriod = periodRecords.size
+            val latestCount = periodRecords.last()
+            historyTextView.text = "最新記録: P${latestPeriod}: ${latestCount}回"
         }
     }
     
