@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RecordsAdapter(private val records: List<PeriodRecord>) : RecyclerView.Adapter<RecordsAdapter.ViewHolder>() {
+class RecordsAdapter(private val records: List<PeriodRecord>, private val exerciseMode: ExerciseMode) : RecyclerView.Adapter<RecordsAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val periodNumberTextView: TextView = itemView.findViewById(R.id.periodNumberTextView)
@@ -22,9 +22,14 @@ class RecordsAdapter(private val records: List<PeriodRecord>) : RecyclerView.Ada
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val record = records[position]
+        val displayCount = if (exerciseMode == ExerciseMode.SQUAT) {
+            record.count / 2
+        } else {
+            record.count
+        }
         
         holder.periodNumberTextView.text = "ピリオド ${record.periodNumber}"
-        holder.countTextView.text = "${record.count}回"
+        holder.countTextView.text = "${displayCount}回"
         holder.timeInfoTextView.text = "${record.getFormattedStartTime()} - ${record.getFormattedEndTime()} (${record.getFormattedDuration()})"
     }
 

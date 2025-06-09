@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     private var acceleration = 0f
     private var squatCount = 0
     private var lastSquatTime = 0L
-    private val squatThreshold = 12f
+    private val squatThreshold = 2f
     private val squatCooldown = 500L
     
     private lateinit var counterTextView: TextView
@@ -205,13 +205,16 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
 
             lastAcceleration = currentAcceleration
             currentAcceleration = sqrt(x * x + y * y + z * z)
-            acceleration = currentAcceleration - lastAcceleration
+            acceleration = kotlin.math.abs(currentAcceleration - lastAcceleration)
+
+            Log.d("SquatDetection", "Acceleration: $acceleration, Threshold: $squatThreshold")
 
             if (acceleration > squatThreshold) {
                 val currentTime = System.currentTimeMillis()
                 if (currentTime - lastSquatTime > squatCooldown) {
                     counter++
                     lastSquatTime = currentTime
+                    Log.d("SquatDetection", "Squat detected! Count: $counter")
                     updateCounterDisplay()
                     saveData()
                 }
@@ -301,7 +304,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun updateCounterDisplay() {
-        counterTextView.text = counter.toString()
+        val displayCount = if (currentMode == ExerciseMode.SQUAT) {
+            counter / 2
+        } else {
+            counter
+        }
+        counterTextView.text = displayCount.toString()
     }
 
     private fun updatePeriodDisplay() {
@@ -317,7 +325,12 @@ class MainActivity : AppCompatActivity(), SensorEventListener {
             historyTextView.text = "記録: なし"
         } else {
             val latestRecord = periodRecords.last()
-            historyTextView.text = "最新記録: P${latestRecord.periodNumber}: ${latestRecord.count}回 (${latestRecord.getFormattedDuration()})"
+            val displayCount = if (currentMode == ExerciseMode.SQUAT) {
+                latestRecord.count / 2
+            } else {
+                latestRecord.count
+            }
+            historyTextView.text = "最新記録: P${latestRecord.periodNumber}: ${displayCount}回 (${latestRecord.getFormattedDuration()})"
         }
     }
     
